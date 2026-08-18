@@ -49,6 +49,16 @@ class TestPipeline(unittest.TestCase):
             {'text': 'pagar internet', 'category': 'finanzas', 'due_date': '2026-08-20'},
         )
 
+    def test_organize_tasks_prioritizes_due_soon_first(self):
+        tasks = [
+            'comprar pan | casa | 2026-08-20',
+            'pagar internet | finanzas | 2026-08-18',
+            'responder correo | trabajo | 2026-08-19',
+            'declarar impuestos | finanzas | 2026-08-17',
+        ]
+        ordered = organize_tasks(tasks)
+        self.assertEqual([t.text for t in ordered], ['declarar impuestos', 'pagar internet', 'responder correo', 'comprar pan'])
+
 
 if __name__ == '__main__':
     unittest.main()
