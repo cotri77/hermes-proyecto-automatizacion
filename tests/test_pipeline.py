@@ -69,6 +69,8 @@ class TestPipeline(unittest.TestCase):
             ['comprar pan | casa | 2026-08-20', 'pagar internet | finanzas | 2026-08-18'],
             ['responder correo | trabajo | 2026-08-19'],
         )
+        self.assertIn('[Bot 1]', summary)
+        self.assertIn('[Bot 3]', summary)
         self.assertIn('Pendientes:', summary)
         self.assertIn('Completadas:', summary)
         self.assertIn('Total pendientes: 2', summary)

@@ -114,10 +114,10 @@ def run_gui() -> None:
         text_out.configure(state='disabled')
         pending_list.delete(0, 'end')
         for task in pending_tasks:
-            pending_list.insert('end', task)
+            pending_list.insert('end', f'[Bot 1] {task}')
         completed_list.delete(0, 'end')
         for task in completed_tasks:
-            completed_list.insert('end', task)
+            completed_list.insert('end', f'[Bot 3] {task}')
 
     def load_tasks() -> None:
         raw = text_in.get('1.0', 'end').strip()

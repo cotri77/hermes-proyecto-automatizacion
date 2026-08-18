@@ -107,7 +107,7 @@ def build_board_summary(pending_texts: list[str], completed_texts: list[str]) ->
             meta = f' | {task.category}'
             if task.due_date:
                 meta += f' | {task.due_date}'
-            lines.append(f'  {idx}. [{task.priority.upper()}]{meta} -> {task.text}')
+            lines.append(f'  {idx}. [Bot 1][{task.priority.upper()}]{meta} -> {task.text}')
     else:
         lines.append('  (ninguna)')
     lines.append('')
@@ -117,7 +117,7 @@ def build_board_summary(pending_texts: list[str], completed_texts: list[str]) ->
             meta = f' | {task.category}'
             if task.due_date:
                 meta += f' | {task.due_date}'
-            lines.append(f'  {idx}. [HECHA]{meta} -> {task.text}')
+            lines.append(f'  {idx}. [Bot 3][HECHA]{meta} -> {task.text}')
     else:
         lines.append('  (ninguna)')
     lines.append('')
