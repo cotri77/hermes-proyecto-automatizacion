@@ -14,6 +14,11 @@ class Task:
     priority: str
 
 
+def parse_tasks_text(text: str) -> list[str]:
+    items = text.replace(';', '\n').splitlines()
+    return [' '.join(item.strip().split()) for item in items if item.strip()]
+
+
 def clean_tasks(lines: Iterable[str]) -> list[str]:
     cleaned: list[str] = []
     for line in lines:

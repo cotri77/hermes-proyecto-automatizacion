@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline
+from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text
 
 
 class TestPipeline(unittest.TestCase):
@@ -30,6 +30,12 @@ class TestPipeline(unittest.TestCase):
             self.assertTrue(output_path.exists())
             self.assertEqual(output_path.read_text(encoding='utf-8'), summary)
             self.assertIn('pagar internet', summary)
+
+    def test_parse_tasks_text_splits_lines_and_semicolons(self):
+        self.assertEqual(
+            parse_tasks_text('comprar pan; pagar internet\n\nresponder correo'),
+            ['comprar pan', 'pagar internet', 'responder correo'],
+        )
 
 
 if __name__ == '__main__':
