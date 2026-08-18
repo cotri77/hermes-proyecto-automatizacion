@@ -15,6 +15,11 @@ Proyecto mínimo en Python para practicar un flujo en cadena.
 - `input.txt`: entrada manual
 - `output.txt`: salida generada
 - `tests/`: pruebas básicas
+- `C:\Users\Gustavo\Desktop\Abrir_organizador_tareas.vbs`: acceso directo para abrir la app sin consola
+
+## Cómo abrir la app
+
+Haz doble clic en `Abrir_organizador_tareas.vbs` en el escritorio.
 
 ## Uso
 
