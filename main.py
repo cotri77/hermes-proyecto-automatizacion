@@ -1,29 +1,30 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
-
-from bot1 import collect_and_clean
-from bot2 import classify_priority
-from bot3 import build_summary
+from src.pipeline import run_pipeline
 
 BASE_DIR = Path(__file__).resolve().parent
 INPUT_FILE = BASE_DIR / 'input.txt'
 OUTPUT_FILE = BASE_DIR / 'output.txt'
+LOG_FILE = BASE_DIR / 'project.log'
 
 
-def read_input() -> list[str]:
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f'No existe {INPUT_FILE.name}. Crea el archivo con tareas.')
-    return INPUT_FILE.read_text(encoding='utf-8').splitlines()
+def setup_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s | %(levelname)s | %(message)s',
+        handlers=[
+            logging.FileHandler(LOG_FILE, encoding='utf-8'),
+            logging.StreamHandler(),
+        ],
+    )
 
 
 def main() -> None:
-    raw_lines = read_input()
-    cleaned = collect_and_clean(raw_lines)
-    classified = classify_priority(cleaned)
-    summary = build_summary(classified)
-    OUTPUT_FILE.write_text(summary, encoding='utf-8')
-    print(summary)
+    setup_logging()
+    summary = run_pipeline(INPUT_FILE, OUTPUT_FILE)
+    print(summary, end='')
 
 
 if __name__ == '__main__':

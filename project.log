@@ -1,0 +1,5 @@
+2026-08-18 15:11:12,014 | INFO | input: read 5 raw lines from input.txt
+2026-08-18 15:11:12,014 | INFO | bot1: cleaned 5 tasks
+2026-08-18 15:11:12,014 | INFO | bot2: classified 5 tasks
+2026-08-18 15:11:12,014 | INFO | bot3: generated summary for 5 tasks
+2026-08-18 15:11:12,014 | INFO | output: wrote output.txt
