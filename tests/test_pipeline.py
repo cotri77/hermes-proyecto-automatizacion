@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line
+from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line, generate_summary_from_text
 
 
 class TestPipeline(unittest.TestCase):
@@ -58,6 +58,11 @@ class TestPipeline(unittest.TestCase):
         ]
         ordered = organize_tasks(tasks)
         self.assertEqual([t.text for t in ordered], ['declarar impuestos', 'pagar internet', 'responder correo', 'comprar pan'])
+
+    def test_generate_summary_from_text_uses_same_pipeline(self):
+        summary = generate_summary_from_text('comprar pan | casa | 2026-08-20; pagar internet | finanzas | 2026-08-18')
+        self.assertIn('pagar internet', summary)
+        self.assertIn('comprar pan', summary)
 
 
 if __name__ == '__main__':

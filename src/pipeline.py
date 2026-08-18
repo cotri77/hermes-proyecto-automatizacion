@@ -90,6 +90,12 @@ def build_summary(tasks: list[Task]) -> str:
     return summary
 
 
+def generate_summary_from_text(text: str) -> str:
+    tasks = parse_tasks_text(text)
+    classified = organize_tasks(tasks)
+    return build_summary(classified)
+
+
 def run_pipeline(input_path: Path, output_path: Path) -> str:
     raw = input_path.read_text(encoding='utf-8').splitlines()
     LOGGER.info('input: read %s raw lines from %s', len(raw), input_path.name)
