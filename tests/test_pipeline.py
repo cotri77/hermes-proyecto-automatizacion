@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line, generate_summary_from_text
+from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line, generate_summary_from_text, build_board_summary
 
 
 class TestPipeline(unittest.TestCase):
@@ -63,6 +63,16 @@ class TestPipeline(unittest.TestCase):
         summary = generate_summary_from_text('comprar pan | casa | 2026-08-20; pagar internet | finanzas | 2026-08-18')
         self.assertIn('pagar internet', summary)
         self.assertIn('comprar pan', summary)
+
+    def test_build_board_summary_shows_pending_and_completed(self):
+        summary = build_board_summary(
+            ['comprar pan | casa | 2026-08-20', 'pagar internet | finanzas | 2026-08-18'],
+            ['responder correo | trabajo | 2026-08-19'],
+        )
+        self.assertIn('Pendientes:', summary)
+        self.assertIn('Completadas:', summary)
+        self.assertIn('Total pendientes: 2', summary)
+        self.assertIn('Total completadas: 1', summary)
 
 
 if __name__ == '__main__':

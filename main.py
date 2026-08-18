@@ -6,7 +6,12 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, scrolledtext
 
-from src.pipeline import run_pipeline, parse_tasks_text, generate_summary_from_text
+from src.pipeline import (
+    run_pipeline,
+    parse_tasks_text,
+    generate_summary_from_text,
+    build_board_summary,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 INPUT_FILE = BASE_DIR / 'input.txt'
@@ -65,35 +70,93 @@ def run_cli(args: argparse.Namespace) -> None:
 def run_gui() -> None:
     root = tk.Tk()
     root.title('Organizador de tareas con 3 bots')
-    root.geometry('900x700')
+    root.geometry('980x760')
+
+    pending_tasks: list[str] = []
+    completed_tasks: list[str] = []
 
     tk.Label(root, text='Pega tus tareas aquí (una por línea o separadas por ;)').pack(anchor='w', padx=12, pady=(12, 4))
-    text_in = scrolledtext.ScrolledText(root, height=12, wrap='word')
-    text_in.pack(fill='both', expand=False, padx=12, pady=(0, 12))
+    text_in = scrolledtext.ScrolledText(root, height=8, wrap='word')
+    text_in.pack(fill='x', padx=12)
     text_in.insert('1.0', 'comprar pan | casa | 2026-08-20\npagar internet | finanzas | 2026-08-18\nresponder correo | trabajo | 2026-08-19\n')
 
+    lists_frame = tk.Frame(root)
+    lists_frame.pack(fill='both', expand=True, padx=12, pady=12)
+
+    left = tk.Frame(lists_frame)
+    left.pack(side='left', fill='both', expand=True, padx=(0, 6))
+    tk.Label(left, text='Pendientes').pack(anchor='w')
+    pending_list = tk.Listbox(left, selectmode='extended')
+    pending_list.pack(fill='both', expand=True)
+
+    right = tk.Frame(lists_frame)
+    right.pack(side='left', fill='both', expand=True, padx=(6, 0))
+    tk.Label(right, text='Completadas').pack(anchor='w')
+    completed_list = tk.Listbox(right)
+    completed_list.pack(fill='both', expand=True)
+
     tk.Label(root, text='Resultado').pack(anchor='w', padx=12, pady=(0, 4))
-    text_out = scrolledtext.ScrolledText(root, height=20, wrap='word', state='disabled')
+    text_out = scrolledtext.ScrolledText(root, height=14, wrap='word', state='disabled')
     text_out.pack(fill='both', expand=True, padx=12, pady=(0, 12))
 
-    def generate() -> None:
+    def refresh_views() -> None:
+        board = build_board_summary(pending_tasks, completed_tasks)
+        OUTPUT_FILE.write_text(board, encoding='utf-8')
+        text_out.configure(state='normal')
+        text_out.delete('1.0', 'end')
+        text_out.insert('1.0', board)
+        text_out.configure(state='disabled')
+        pending_list.delete(0, 'end')
+        for task in pending_tasks:
+            pending_list.insert('end', task)
+        completed_list.delete(0, 'end')
+        for task in completed_tasks:
+            completed_list.insert('end', task)
+
+    def load_tasks() -> None:
         raw = text_in.get('1.0', 'end').strip()
         if not raw:
             messagebox.showwarning('Sin tareas', 'Escribe al menos una tarea.')
             return
-        summary = generate_summary_from_text(raw)
-        OUTPUT_FILE.write_text(summary, encoding='utf-8')
-        INPUT_FILE.write_text('\n'.join(parse_tasks_text(raw)) + '\n', encoding='utf-8')
+        nonlocal pending_tasks, completed_tasks
+        pending_tasks = parse_tasks_text(raw)
+        completed_tasks = []
+        INPUT_FILE.write_text('\n'.join(pending_tasks) + '\n', encoding='utf-8')
+        refresh_views()
+
+    def mark_completed() -> None:
+        selected = list(pending_list.curselection())
+        if not selected:
+            messagebox.showinfo('Nada seleccionado', 'Selecciona una o más tareas pendientes.')
+            return
+        nonlocal pending_tasks, completed_tasks
+        selected_texts = [pending_tasks[i] for i in selected]
+        for idx in reversed(selected):
+            completed_tasks.append(pending_tasks.pop(idx))
+        pending_tasks.sort(key=lambda t: t.lower())
+        completed_tasks.sort(key=lambda t: t.lower())
+        refresh_views()
+        messagebox.showinfo('Listo', f'Se marcaron {len(selected_texts)} tarea(s) como completadas.')
+
+    def reset_all() -> None:
+        nonlocal pending_tasks, completed_tasks
+        pending_tasks = []
+        completed_tasks = []
+        text_in.delete('1.0', 'end')
+        pending_list.delete(0, 'end')
+        completed_list.delete(0, 'end')
         text_out.configure(state='normal')
         text_out.delete('1.0', 'end')
-        text_out.insert('1.0', summary)
         text_out.configure(state='disabled')
+        OUTPUT_FILE.write_text('', encoding='utf-8')
 
     button_bar = tk.Frame(root)
     button_bar.pack(fill='x', padx=12, pady=(0, 12))
-    tk.Button(button_bar, text='Organizar tareas', command=generate).pack(side='left')
-    tk.Button(button_bar, text='Limpiar', command=lambda: (text_in.delete('1.0', 'end'), text_out.configure(state='normal'), text_out.delete('1.0', 'end'), text_out.configure(state='disabled'))).pack(side='left', padx=8)
+    tk.Button(button_bar, text='Cargar tareas', command=load_tasks).pack(side='left')
+    tk.Button(button_bar, text='Marcar completada(s)', command=mark_completed).pack(side='left', padx=8)
+    tk.Button(button_bar, text='Limpiar todo', command=reset_all).pack(side='left')
 
+    load_tasks()
     root.mainloop()
 
 

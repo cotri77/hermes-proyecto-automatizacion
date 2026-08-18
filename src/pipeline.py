@@ -96,6 +96,35 @@ def generate_summary_from_text(text: str) -> str:
     return build_summary(classified)
 
 
+def build_board_summary(pending_texts: list[str], completed_texts: list[str]) -> str:
+    pending = organize_tasks(pending_texts)
+    completed = organize_tasks(completed_texts)
+    lines = ['Tablero de tareas', '=================', '']
+    lines.append('Pendientes:')
+    if pending:
+        for idx, task in enumerate(pending, start=1):
+            meta = f' | {task.category}'
+            if task.due_date:
+                meta += f' | {task.due_date}'
+            lines.append(f'  {idx}. [{task.priority.upper()}]{meta} -> {task.text}')
+    else:
+        lines.append('  (ninguna)')
+    lines.append('')
+    lines.append('Completadas:')
+    if completed:
+        for idx, task in enumerate(completed, start=1):
+            meta = f' | {task.category}'
+            if task.due_date:
+                meta += f' | {task.due_date}'
+            lines.append(f'  {idx}. [HECHA]{meta} -> {task.text}')
+    else:
+        lines.append('  (ninguna)')
+    lines.append('')
+    lines.append(f'Total pendientes: {len(pending)}')
+    lines.append(f'Total completadas: {len(completed)}')
+    return '\n'.join(lines) + '\n'
+
+
 def run_pipeline(input_path: Path, output_path: Path) -> str:
     raw = input_path.read_text(encoding='utf-8').splitlines()
     LOGGER.info('input: read %s raw lines from %s', len(raw), input_path.name)
