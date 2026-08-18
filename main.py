@@ -11,6 +11,8 @@ from src.pipeline import (
     parse_tasks_text,
     generate_summary_from_text,
     build_board_summary,
+    save_bot_state,
+    load_bot_state,
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -72,8 +74,8 @@ def run_gui() -> None:
     root.title('Organizador de tareas con 3 bots')
     root.geometry('980x760')
 
-    pending_tasks: list[str] = []
-    completed_tasks: list[str] = []
+    pending_tasks: list[str] = load_bot_state(BASE_DIR / 'bot1_state.json')
+    completed_tasks: list[str] = load_bot_state(BASE_DIR / 'bot3_state.json')
 
     tk.Label(root, text='Pega tus tareas aquí (una por línea o separadas por ;)').pack(anchor='w', padx=12, pady=(12, 4))
     text_in = scrolledtext.ScrolledText(root, height=8, wrap='word')
@@ -122,6 +124,8 @@ def run_gui() -> None:
         pending_tasks = parse_tasks_text(raw)
         completed_tasks = []
         INPUT_FILE.write_text('\n'.join(pending_tasks) + '\n', encoding='utf-8')
+        save_bot_state(BASE_DIR / 'bot1_state.json', pending_tasks)
+        save_bot_state(BASE_DIR / 'bot3_state.json', completed_tasks)
         refresh_views()
 
     def mark_completed() -> None:
@@ -135,6 +139,8 @@ def run_gui() -> None:
             completed_tasks.append(pending_tasks.pop(idx))
         pending_tasks.sort(key=lambda t: t.lower())
         completed_tasks.sort(key=lambda t: t.lower())
+        save_bot_state(BASE_DIR / 'bot1_state.json', pending_tasks)
+        save_bot_state(BASE_DIR / 'bot3_state.json', completed_tasks)
         refresh_views()
         messagebox.showinfo('Listo', f'Se marcaron {len(selected_texts)} tarea(s) como completadas.')
 
@@ -149,6 +155,8 @@ def run_gui() -> None:
         text_out.delete('1.0', 'end')
         text_out.configure(state='disabled')
         OUTPUT_FILE.write_text('', encoding='utf-8')
+        save_bot_state(BASE_DIR / 'bot1_state.json', pending_tasks)
+        save_bot_state(BASE_DIR / 'bot3_state.json', completed_tasks)
 
     button_bar = tk.Frame(root)
     button_bar.pack(fill='x', padx=12, pady=(0, 12))

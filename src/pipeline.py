@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Iterable
+import json
 
 LOGGER = logging.getLogger(__name__)
 
@@ -123,6 +124,19 @@ def build_board_summary(pending_texts: list[str], completed_texts: list[str]) ->
     lines.append(f'Total pendientes: {len(pending)}')
     lines.append(f'Total completadas: {len(completed)}')
     return '\n'.join(lines) + '\n'
+
+
+def save_bot_state(path: Path, data: list[str]) -> None:
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+def load_bot_state(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    try:
+        return json.loads(path.read_text(encoding='utf-8'))
+    except json.JSONDecodeError:
+        return []
 
 
 def run_pipeline(input_path: Path, output_path: Path) -> str:
