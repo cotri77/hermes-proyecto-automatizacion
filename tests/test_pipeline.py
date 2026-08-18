@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text
+from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line
 
 
 class TestPipeline(unittest.TestCase):
@@ -35,6 +35,18 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             parse_tasks_text('comprar pan; pagar internet\n\nresponder correo'),
             ['comprar pan', 'pagar internet', 'responder correo'],
+        )
+
+    def test_parse_tasks_text_supports_category_and_due_date(self):
+        self.assertEqual(
+            parse_tasks_text('pagar internet | finanzas | 2026-08-20'),
+            ['pagar internet | finanzas | 2026-08-20'],
+        )
+
+    def test_parse_task_line_breaks_out_metadata(self):
+        self.assertEqual(
+            parse_task_line('pagar internet | finanzas | 2026-08-20'),
+            {'text': 'pagar internet', 'category': 'finanzas', 'due_date': '2026-08-20'},
         )
 
 
