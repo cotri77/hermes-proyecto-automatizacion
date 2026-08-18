@@ -126,6 +126,13 @@ def build_board_summary(pending_texts: list[str], completed_texts: list[str]) ->
     return '\n'.join(lines) + '\n'
 
 
+def build_activity_log(steps: list[tuple[str, str]]) -> str:
+    lines = ['Actividad de bots', '==================', '']
+    for idx, (bot, action) in enumerate(steps, start=1):
+        lines.append(f'{idx}. {bot}: {action}')
+    return '\n'.join(lines) + '\n'
+
+
 def save_bot_state(path: Path, data: list[str]) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
 

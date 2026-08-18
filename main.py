@@ -101,6 +101,10 @@ def run_gui() -> None:
     text_out = scrolledtext.ScrolledText(root, height=14, wrap='word', state='disabled')
     text_out.pack(fill='both', expand=True, padx=12, pady=(0, 12))
 
+    activity_var = tk.StringVar(value='Actividad: sin acciones todavía')
+    activity_label = tk.Label(root, textvariable=activity_var, anchor='w', justify='left')
+    activity_label.pack(fill='x', padx=12, pady=(0, 12))
+
     def refresh_views() -> None:
         board = build_board_summary(pending_tasks, completed_tasks)
         OUTPUT_FILE.write_text(board, encoding='utf-8')
@@ -126,6 +130,12 @@ def run_gui() -> None:
         INPUT_FILE.write_text('\n'.join(pending_tasks) + '\n', encoding='utf-8')
         save_bot_state(BASE_DIR / 'bot1_state.json', pending_tasks)
         save_bot_state(BASE_DIR / 'bot3_state.json', completed_tasks)
+        activity_var.set(build_activity_log([
+            ('Bot 1', f'cargó {len(pending_tasks)} tareas'),
+            ('Bot 2', 'clasificará cuando marques una vista o generes resumen'),
+            ('Bot 3', 'sin tareas completadas todavía'),
+            ('Orquestador', 'sincronizó el estado inicial'),
+        ]).strip())
         refresh_views()
 
     def mark_completed() -> None:
@@ -141,6 +151,11 @@ def run_gui() -> None:
         completed_tasks.sort(key=lambda t: t.lower())
         save_bot_state(BASE_DIR / 'bot1_state.json', pending_tasks)
         save_bot_state(BASE_DIR / 'bot3_state.json', completed_tasks)
+        activity_var.set(build_activity_log([
+            ('Bot 1', f'actualizó pendientes: {len(pending_tasks)}'),
+            ('Bot 3', f'marcó completadas: {len(completed_tasks)}'),
+            ('Orquestador', f'movió {len(selected_texts)} tarea(s) al estado completado'),
+        ]).strip())
         refresh_views()
         messagebox.showinfo('Listo', f'Se marcaron {len(selected_texts)} tarea(s) como completadas.')
 
@@ -157,6 +172,7 @@ def run_gui() -> None:
         OUTPUT_FILE.write_text('', encoding='utf-8')
         save_bot_state(BASE_DIR / 'bot1_state.json', pending_tasks)
         save_bot_state(BASE_DIR / 'bot3_state.json', completed_tasks)
+        activity_var.set('Actividad: tablero reiniciado por el orquestador')
 
     button_bar = tk.Frame(root)
     button_bar.pack(fill='x', padx=12, pady=(0, 12))

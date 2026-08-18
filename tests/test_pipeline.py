@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line, generate_summary_from_text, build_board_summary, save_bot_state, load_bot_state
+from src.pipeline import clean_tasks, organize_tasks, build_summary, run_pipeline, parse_tasks_text, parse_task_line, generate_summary_from_text, build_board_summary, save_bot_state, load_bot_state, build_activity_log
 
 
 class TestPipeline(unittest.TestCase):
@@ -79,6 +79,17 @@ class TestPipeline(unittest.TestCase):
             path = Path(tmp) / 'bot.json'
             save_bot_state(path, ['a', 'b'])
             self.assertEqual(load_bot_state(path), ['a', 'b'])
+
+    def test_build_activity_log_shows_bot_steps(self):
+        activity = build_activity_log([
+            ('Bot 1', 'cargó 3 tareas'),
+            ('Bot 2', 'clasificó prioridades'),
+            ('Bot 3', 'guardó 1 completada'),
+        ])
+        self.assertIn('Actividad de bots', activity)
+        self.assertIn('Bot 1', activity)
+        self.assertIn('Bot 2', activity)
+        self.assertIn('Bot 3', activity)
 
 
 if __name__ == '__main__':
